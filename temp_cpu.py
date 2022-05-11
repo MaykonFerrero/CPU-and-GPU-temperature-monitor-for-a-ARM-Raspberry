@@ -4,6 +4,16 @@ import requests
 import webbrowser
 import urllib.request
 import thingspeak
+import psutil
+
+def getFree():
+    free = os.popen("free -h")
+    i = 0
+    while True:
+        i = i + 1
+        line = free.readline()
+        if i==2:
+            return(line.split()[0:7])
 
 
 def temp_gpu():
@@ -36,10 +46,18 @@ if __name__ == "__main__":
                
                 a=temp_gpu()
                 b=temp_cpu()
+                load=psutil.cpu_percent()
+                
+                mem = getFree()
+                mem[2]=mem[2].replace("Mi","")
+                mem[3]=mem[3].replace("Gi","")
+
+                memory=(float(mem[2])/1000)/float(mem[3])*100
+                
                 print(a)
                 print(b)
                 
-                response=channel.update({'field2': float(a),'field3': b})
+                response=channel.update({'field2': float(a),'field3': b, 'field4':load, 'field5':memory})
                 
             else:
                 print("não enviar")
